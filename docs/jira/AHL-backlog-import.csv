@@ -1,0 +1,146 @@
+Summary,Issue Type,Story Points,Assignee,Sprint,Labels,Description
+"SRS: scope, business rules, actors, FR and NFR",Task,5,Islam Jaradat,AHL Sprint 1,sprint-1 task,"Write SRS sections 1-7 (introduction, overview, scope, business rules, actors and access control, functional and non-functional requirements)."
+"SRS: user stories, use cases and traceability matrix",Task,5,Raneem Masalmeh,AHL Sprint 1,sprint-1 task,"Write SRS sections 8-10 and 17-18: user stories with Given-When-Then criteria, use case diagram and specifications, RTM and test case list."
+Design system architecture and REST API specification,Task,5,Mohammad Mujahed,AHL Sprint 1,sprint-1 task,"Write SRS sections 11, 13 and 14: three-tier architecture, page/database interaction and the 16 API endpoints with JSON payloads."
+Design ERD and MySQL schema with seed data,Task,5,Raneem Masalmeh,AHL Sprint 1,sprint-1 task,Draw the ERD (SRS section 12) and write database/schema.sql and database/seed.sql.
+Create GitHub repository and upload the initial structure,Task,2,Mohammad Mujahed,AHL Sprint 1,sprint-1 task,"Create the repository, invite all members as collaborators, push the frontend/backend/database/docs structure and the README."
+"Set up the Jira board, backlog and sprints",Task,2,Islam Jaradat,AHL Sprint 1,sprint-1 task,"Import the backlog CSV, run planning poker for story points, assign owners and create Sprints 1-4."
+Design UI wireframes for patient and receptionist pages,Task,3,Murad Atawneh,AHL Sprint 1,sprint-1 task,"Wireframes for Clinics, Register, Login, New Request, My Requests, Request Details, Requests Dashboard and Manage Clinics (Arabic, right-to-left)."
+"Backend foundation: configuration, MySQL pool, error format",Task,3,Murad Atawneh,AHL Sprint 2,sprint-2 task,"Complete backend/src/config, connect the mysql2 pool, keep the standard error JSON format and the /api/v1/health check. Covers NFR-07 (parameterized queries)."
+"Frontend foundation: layout, routing, Arabic RTL theme",Task,3,Islam Jaradat,AHL Sprint 2,sprint-2 task,"Header and navigation, protected routes by role, Axios client that sends the token, responsive layout from 360 px (NFR-10, NFR-12)."
+JWT authentication middleware and role guard,Task,3,Mohammad Mujahed,AHL Sprint 2,sprint-2 task,"Implement backend/src/middleware/authenticate.js (verify Bearer token, 8-hour expiry) and test requireRole: 401 without token, 403 for wrong role (NFR-04, NFR-05)."
+US-01 Register a patient account,Story,5,Raneem Masalmeh,AHL Sprint 2,sprint-2 user-story,"As a visitor, I want to register with my mobile number, so that I can request appointments online without calling the hospital.
+
+Acceptance criteria:
+AC1. Given I am on the Register page and my mobile number has no account, When I submit full name, a valid 05XXXXXXXX number, date of birth and two matching valid passwords, Then a Patient account is created, I am logged in and I see My Requests.
+AC2. Given my mobile number already has an account, When I submit the form, Then no account is created and the form says the number is already registered.
+AC3. Given my password has fewer than 8 characters or no digit, When I submit the form, Then the password rule is shown next to the field and nothing is saved.
+
+Traceability: FR-01 | US-01 | UC-01 | TC-01
+API: POST /api/v1/auth/register
+Page: Register page"
+US-02 Log in,Story,5,Mohammad Mujahed,AHL Sprint 2,sprint-2 user-story,"As a patient or receptionist, I want to log in with my mobile number and password, so that I can reach the pages of my role.
+
+Acceptance criteria:
+AC1. Given I have an account, When I enter the correct mobile number and password, Then I am logged in; a patient sees My Requests and a receptionist sees the Requests Dashboard.
+AC2. Given I have an account, When I enter a wrong password, Then I see that the mobile number or password is incorrect, without saying which.
+AC3. Given I failed to log in 5 times in a row, When I try again within 15 minutes, Then login is refused and the message says when I can try again.
+
+Traceability: FR-02 | US-02 | UC-02 | TC-02, TC-16
+API: POST /api/v1/auth/login, GET /api/v1/auth/me
+Page: Login page"
+US-03 Log out,Story,1,Murad Atawneh,AHL Sprint 2,sprint-2 user-story,"As a logged-in user, I want to log out, so that nobody else using this device can see my data.
+
+Acceptance criteria:
+AC1. Given I am logged in, When I click Log out, Then my token is deleted and I return to the Clinics page.
+AC2. Given I have logged out, When I open a protected page such as My Requests, Then I am sent to the login page.
+
+Traceability: FR-03 | US-03 | UC-03 | TC-03
+API: none (token removed in the browser)
+Page: Header menu"
+US-04 Browse clinics,Story,3,Islam Jaradat,AHL Sprint 2,sprint-2 user-story,"As a visitor or patient, I want to see the clinics with their location and working hours, so that I can choose the right clinic and day.
+
+Acceptance criteria:
+AC1. Given active clinics exist, When I open the Clinics page, Then I see each active clinic's name, description, location and working days and hours.
+AC2. Given a clinic is inactive, When I open the Clinics page, Then that clinic is not listed.
+
+Traceability: FR-04 | US-04 | UC-04 | TC-04
+API: GET /api/v1/clinics, GET /api/v1/clinics/:clinicId
+Page: Clinics page"
+US-05 Search and filter clinics,Story,2,Murad Atawneh,AHL Sprint 2,sprint-2 user-story,"As a visitor or patient, I want to search clinics by name and filter them by day, so that I find a suitable clinic quickly.
+
+Acceptance criteria:
+AC1. Given I am on the Clinics page, When I type part of a clinic name, Then only clinics whose name contains that text are shown.
+AC2. Given I am on the Clinics page, When I choose a working day, Then only clinics open on that day are shown; with no match I see a ""no clinics found"" message.
+
+Traceability: FR-05 | US-05 | UC-05 | TC-05
+API: GET /api/v1/clinics?search=&day=
+Page: Clinics page"
+US-06 Submit an appointment request,Story,8,Mohammad Mujahed,AHL Sprint 3,sprint-3 user-story,"As a patient, I want to request an appointment at a clinic on a preferred date, so that I get an appointment without phoning the hospital.
+
+Acceptance criteria:
+AC1. Given I am logged in and the clinic is active, When I pick one of its working days between tomorrow and 30 days ahead and click Submit, Then a request is created with status Pending and I see its number, e.g. AH-2026-00042.
+AC2. Given I am logged in, When I pick a day the clinic does not work, or a date outside the allowed range, Then no request is created and I see which rule failed.
+AC3. Given I already have an active request for the same clinic and date, or 3 Pending requests, When I click Submit, Then no request is created and I see the reason.
+AC4. Given I am not logged in, When I click Request appointment on a clinic, Then I am sent to the login page and returned to the form after logging in.
+
+Traceability: FR-06 | US-06 | UC-06 | TC-06, TC-15
+API: POST /api/v1/appointments
+Page: New Request page"
+US-07 View my requests,Story,3,Islam Jaradat,AHL Sprint 3,sprint-3 user-story,"As a patient, I want to see all my requests and their status, so that I know which ones are confirmed.
+
+Acceptance criteria:
+AC1. Given I have requests, When I open My Requests, Then I see request number, clinic, preferred date and status for each, newest first.
+AC2. Given I have no requests, When I open My Requests, Then I see an empty-state message and a link to the Clinics page.
+
+Traceability: FR-07 | US-07 | UC-07 | TC-07
+API: GET /api/v1/appointments/mine
+Page: My Requests page"
+US-08 Track a request by number,Story,3,Raneem Masalmeh,AHL Sprint 3,sprint-3 user-story,"As a patient, I want to open a request by its number, so that I can see the confirmed time or the rejection reason.
+
+Acceptance criteria:
+AC1. Given request AH-2026-00042 is mine, When I search for that number, Then I see its status, clinic and date, plus the time and note if Confirmed, or the reason if Rejected.
+AC2. Given the number does not exist or belongs to another patient, When I search for it, Then I see ""request not found"" and no other patient's data.
+
+Traceability: FR-08 | US-08 | UC-08 | TC-08
+API: GET /api/v1/appointments/:requestNumber
+Page: Request Details page"
+US-09 Cancel a request,Story,3,Raneem Masalmeh,AHL Sprint 3,sprint-3 user-story,"As a patient, I want to cancel a request I no longer need, so that the time goes to another patient.
+
+Acceptance criteria:
+AC1. Given my request is Pending or Confirmed and its date is at least one day away, When I click Cancel and confirm, Then its status becomes Cancelled.
+AC2. Given my request is Rejected or Cancelled, or its date is today or past, When I open it, Then no Cancel button is shown, and the API refuses a cancellation call.
+
+Traceability: FR-09 | US-09 | UC-09 | TC-09
+API: PATCH /api/v1/appointments/:requestNumber/cancel
+Page: Request Details page"
+US-13 Add and edit clinics,Story,5,Murad Atawneh,AHL Sprint 3,sprint-3 user-story,"As a receptionist, I want to add and edit clinics and their working hours, so that patients always see correct information.
+
+Acceptance criteria:
+AC1. Given I filled name, description, location and at least one working day whose start is before its end, When I click Save, Then the clinic is saved and appears in the clinic list.
+AC2. Given the name already exists, or a day's end time is before its start time, When I click Save, Then nothing is saved and the error is shown.
+
+Traceability: FR-13 | US-13 | UC-13 | TC-13
+API: GET/POST /api/v1/admin/clinics, PUT /api/v1/admin/clinics/:clinicId
+Page: Manage Clinics page"
+US-14 Deactivate or reactivate a clinic,Story,2,Murad Atawneh,AHL Sprint 3,sprint-3 user-story,"As a receptionist, I want to deactivate a clinic temporarily, so that patients cannot request a clinic that is not running.
+
+Acceptance criteria:
+AC1. Given a clinic is active, When I deactivate it, Then it disappears from the public list, new requests for it are refused, and its existing requests stay unchanged.
+AC2. Given a clinic is inactive, When I reactivate it, Then it appears in the clinic list again.
+
+Traceability: FR-14 | US-14 | UC-13 | TC-14
+API: PATCH /api/v1/admin/clinics/:clinicId/status
+Page: Manage Clinics page"
+US-10 Review appointment requests,Story,5,Raneem Masalmeh,AHL Sprint 4,sprint-4 user-story,"As a receptionist, I want to see and filter all requests, so that I handle the pending ones first.
+
+Acceptance criteria:
+AC1. Given I am logged in as a receptionist, When I open the Requests Dashboard, Then I see Pending requests first, oldest first, 20 per page, with patient name, mobile, clinic, preferred date and notes.
+AC2. Given I am on the dashboard, When I filter by status, clinic or date, or search a request number or mobile number, Then only matching requests are listed.
+AC3. Given I am logged in as a patient, When I open the dashboard address, Then access is denied (HTTP 403).
+
+Traceability: FR-10 | US-10 | UC-10 | TC-10, TC-16
+API: GET /api/v1/admin/appointments
+Page: Requests Dashboard"
+US-11 Confirm a request,Story,3,Islam Jaradat,AHL Sprint 4,sprint-4 user-story,"As a receptionist, I want to confirm a request with an appointment time, so that the patient knows exactly when to come.
+
+Acceptance criteria:
+AC1. Given a request is Pending, When I enter a time inside the clinic's hours for that day and click Confirm, Then the status becomes Confirmed; the time, my user and the decision time are saved; the patient sees them.
+AC2. Given a request is Pending, When I enter a time outside the clinic's hours, Then confirmation is refused and the clinic's hours are shown.
+AC3. Given the patient cancelled the request meanwhile, When I click Confirm, Then it is refused with ""this request is no longer pending"".
+
+Traceability: FR-11 | US-11 | UC-11 | TC-11
+API: PATCH /api/v1/admin/appointments/:requestNumber/confirm
+Page: Requests Dashboard"
+US-12 Reject a request,Story,3,Murad Atawneh,AHL Sprint 4,sprint-4 user-story,"As a receptionist, I want to reject a request with a reason, so that the patient understands and can choose another date or clinic.
+
+Acceptance criteria:
+AC1. Given a request is Pending, When I write a reason and click Reject, Then the status becomes Rejected and the patient sees the reason.
+AC2. Given a request is Pending, When I click Reject with an empty reason, Then the request stays Pending and I am asked for a reason.
+
+Traceability: FR-12 | US-12 | UC-12 | TC-12
+API: PATCH /api/v1/admin/appointments/:requestNumber/reject
+Page: Requests Dashboard"
+Automated API tests with Jest and Supertest,Task,5,Murad Atawneh,AHL Sprint 4,sprint-4 task,One test file per resource covering the acceptance criteria of US-01 to US-14 and the error codes in SRS section 14.1.
+System testing (TC-01 to TC-16) and bug fixing,Task,5,Islam Jaradat,AHL Sprint 4,sprint-4 task,"Run every test case in SRS section 18 on the integrated system, log defects as Bugs in Jira and retest fixes."
+Deploy the demo and write the user guide,Task,3,Mohammad Mujahed,AHL Sprint 4,sprint-4 task,"Deploy frontend, API and database for the final demo over HTTPS; short Arabic user guide for patients and receptionists."
